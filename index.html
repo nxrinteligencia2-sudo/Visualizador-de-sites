@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Previewer Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>Web Previewer</h1>
+        <div class="controls">
+            <input type="file" id="file-input" 
+                   accept=".html,.css,.js,.jpg,.jpeg,.png,.webp,.gif,.svg" 
+                   multiple>
+            <p class="hint">Segure para selecionar múltiplos arquivos (HTML + Imagens)</p>
+            <button id="render-btn">Renderizar Site</button>
+        </div>
+    </header>
+
+    <main>
+        <iframe id="viewer-frame" title="Visualizador"></iframe>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
