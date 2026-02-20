@@ -1,33 +1,76 @@
-document.getElementById('render-btn').addEventListener('click', async function() {
-    const fileInput = document.getElementById('file-input');
-    const iframe = document.getElementById('viewer-frame');
-    const files = Array.from(fileInput.files);
+// Nossa "sacola" que vai guardar os arquivos adicionados aos poucos
+let arquivosAcumulados = [];
 
-    // Busca o arquivo HTML principal
-    const htmlFile = files.find(f => f.name.endsWith('.html'));
+// Quando o usuário escolhe arquivos
+document.getElementById('file-input').addEventListener('change', function(event) {
+    const novosArquivos = Array.from(event.target.files);
+    
+    // Adiciona na sacola apenas se o arquivo ainda não estiver lá
+    novosArquivos.forEach(novo => {
+        const jaExiste = arquivosAcumulados.find(a => a.name === novo.name);
+        if (!jaExiste) {
+            arquivosAcumulados.push(novo);
+        }
+    });
+
+    atualizarListaNaTela();
+    
+    // Reseta o input para o celular deixar você adicionar o mesmo arquivo de novo se errar
+    this.value = ''; 
+});
+
+// Função para desenhar a lista de nomes na tela
+function atualizarListaNaTela() {
+    const lista = document.getElementById('file-list');
+    lista.innerHTML = ''; // Limpa antes de redesenhar
+    
+    arquivosAcumulados.forEach((arquivo, index) => {
+        const li = document.createElement('li');
+        li.textContent = arquivo.name;
+        
+        // Botãozinho vermelho pra remover um arquivo específico
+        const btnRemover = document.createElement('button');
+        btnRemover.textContent = 'X';
+        btnRemover.className = 'remove-btn';
+        btnRemover.onclick = () => {
+            arquivosAcumulados.splice(index, 1); // Tira da sacola
+            atualizarListaNaTela(); // Atualiza a tela
+        };
+        
+        li.appendChild(btnRemover);
+        lista.appendChild(li);
+    });
+}
+
+// Botão de Limpar Tudo
+document.getElementById('clear-btn').addEventListener('click', () => {
+    arquivosAcumulados = []; // Esvazia a sacola
+    atualizarListaNaTela();
+    document.getElementById('viewer-frame').srcdoc = ''; // Limpa a tela
+});
+
+// Botão de Renderizar
+document.getElementById('render-btn').addEventListener('click', async function() {
+    const iframe = document.getElementById('viewer-frame');
+    const htmlFile = arquivosAcumulados.find(f => f.name.endsWith('.html'));
 
     if (!htmlFile) {
-        alert("Erro: Você precisa selecionar pelo menos um arquivo .html");
+        alert("Ops! Falta adicionar o arquivo .html");
         return;
     }
 
-    // Lê o conteúdo do arquivo HTML como texto
     let htmlContent = await htmlFile.text();
 
-    // Processa todos os outros arquivos (imagens, css, js)
-    files.forEach(file => {
+    arquivosAcumulados.forEach(file => {
         if (file !== htmlFile) {
-            // Cria uma URL temporária para o arquivo
             const blobUrl = URL.createObjectURL(file);
-            const fileName = file.name;
-
-            // Substitui referências no HTML (ex: src="foto.jpg" ou href="estilo.css")
-            // A regex abaixo lida com caminhos como "./imagem.jpg" ou "imagem.jpg"
-            const pattern = new RegExp(`(src|href)=["'](\\./|/)?${fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`, 'g');
+            const fileName = file.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Protege caracteres
+            
+            // SUPER REGEX: Encontra src="foto.jpg" ou src="./pasta/foto.jpg" e substitui perfeitamente
+            const pattern = new RegExp(`(src|href)=["']([^"']*?/)?${fileName}["']`, 'g');
             htmlContent = htmlContent.replace(pattern, `$1="${blobUrl}"`);
         }
     });
 
-    // Injeta o HTML modificado com as URLs de blob no Iframe
     iframe.srcdoc = htmlContent;
 });
