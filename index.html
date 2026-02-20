@@ -8,7 +8,6 @@
     <meta name="theme-color" content="#1e1e1e">
 
     <title>Web Previewer Pro</title>
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,11 +15,19 @@
     <header>
         <h1>Web Previewer</h1>
         <div class="controls">
-            <input type="file" id="file-input" 
-                   accept=".html,.css,.js,.jpg,.jpeg,.png,.webp,.gif,.svg" 
-                   multiple>
-            <p class="hint">Segure para selecionar vários (HTML + Imagens + CSS)</p>
-            <button id="render-btn">Renderizar Site</button>
+            <label for="file-input" class="custom-upload-btn">
+                + Adicionar Arquivos
+            </label>
+            <input type="file" id="file-input" accept=".html,.css,.js,.jpg,.jpeg,.png,.webp,.gif,.svg" multiple hidden>
+            
+            <p class="hint">Você pode adicionar arquivos de pastas diferentes, um por vez!</p>
+
+            <ul id="file-list"></ul>
+
+            <div class="action-buttons">
+                <button id="clear-btn">Limpar Lista</button>
+                <button id="render-btn">Renderizar Site</button>
+            </div>
         </div>
     </header>
 
@@ -31,4 +38,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
